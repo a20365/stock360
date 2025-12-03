@@ -1,0 +1,246 @@
+services:
+  # ==================================
+  # MongoDB para o Serviço Auth (Porta 27017)
+  # ==================================
+  auth_mongo:
+    image: mongo:6
+    container_name: auth_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${AUTH_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${AUTH_DB_PASS}
+    ports:
+      - "27017:27017"
+    volumes:
+      - auth_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${AUTH_DB_USER}", "--password", "${AUTH_DB_PASS}", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==================================
+  # MongoDB para o Serviço Users (Porta 27018)
+  # ==================================
+  users_mongo:
+    image: mongo:6
+    container_name: users_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${USERS_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${USERS_DB_PASS}
+    ports:
+      - "27018:27017"
+    volumes:
+      - users_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${USERS_DB_USER}", "--password", "${USERS_DB_PASS}", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==================================
+  # MongoDB para o Serviço Tools (Porta 27019)
+  # ==================================
+  tools_mongo:
+    image: mongo:6
+    container_name: tools_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${TOOLS_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${TOOLS_DB_PASS}
+    ports:
+      - "27019:27017"
+    volumes:
+      - tools_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${TOOLS_DB_USER}", "--password", "${TOOLS_DB_PASS}", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+  
+  # ==================================
+  # MongoDB para o Serviço Requests (Porta 27020)
+  # ==================================
+  requests_mongo:
+    image: mongo:6
+    container_name: requests_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${REQUESTS_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${REQUESTS_DB_PASS}
+    ports:
+      - "27020:27017"
+    volumes:
+      - requests_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${REQUESTS_DB_USER}", "--password", "${REQUESTS_DB_PASS}", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==================================
+  # MongoDB para o Serviço Warehouses (Porta 27021)
+  # ==================================
+  warehouses_mongo:
+    image: mongo:6
+    container_name: warehouses_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${WAREHOUSES_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${WAREHOUSES_DB_PASS}
+    ports:
+      - "27021:27017"
+    volumes:
+      - warehouses_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${WAREHOUSES_DB_USER}", "--password", "${WAREHOUSES_DB_PASS}", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==================
+  # Auth service
+  # ==================
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env 
+    environment:
+      - DATABASE_URL=mongodb://${AUTH_DB_USER}:${AUTH_DB_PASS}@auth_mongo:27017/${AUTH_DB}?authSource=admin
+    depends_on:
+      auth_mongo:
+        condition: service_healthy
+  
+  # ==================
+  # Users service
+  # ==================
+  users-service:
+    build:
+      context: ./services/users-service
+      dockerfile: Dockerfile
+    container_name: users-service
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=mongodb://${USERS_DB_USER}:${USERS_DB_PASS}@users_mongo:27017/${USERS_DB}?authSource=admin
+    depends_on:
+      users_mongo:
+        condition: service_healthy
+
+  # ==================
+  # Tools service
+  # ==================
+  tools-service:
+    build:
+      context: ./services/tools-service
+      dockerfile: Dockerfile
+    container_name: tools-service
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=mongodb://${TOOLS_DB_USER}:${TOOLS_DB_PASS}@tools_mongo:27017/${TOOLS_DB}?authSource=admin
+    depends_on:
+      tools_mongo:
+        condition: service_healthy
+
+  # ==================
+  # Requests service
+  # ==================
+  requests-service:
+    build:
+      context: ./services/requests-service
+      dockerfile: Dockerfile
+    container_name: requests-service
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=mongodb://${REQUESTS_DB_USER}:${REQUESTS_DB_PASS}@requests_mongo:27017/${REQUESTS_DB}?authSource=admin
+    depends_on:
+      requests_mongo:
+        condition: service_healthy
+
+  # ==================
+  # Warehouses service
+  # ==================
+  warehouses-service:
+    build:
+      context: ./services/warehouses-service
+      dockerfile: Dockerfile
+    container_name: warehouses-service
+    ports:
+      - "8004:8000"
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=mongodb://${WAREHOUSES_DB_USER}:${WAREHOUSES_DB_PASS}@warehouses_mongo:27017/${WAREHOUSES_DB}?authSource=admin
+    depends_on:
+      warehouses_mongo:
+        condition: service_healthy
+
+  # ==================
+  # Prometheus
+  # ==================
+  prometheus:
+    image: prom/prometheus:main
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - auth-service
+      - users-service
+      - tools-service
+      - requests-service
+      - warehouses-service 
+    restart: unless-stopped
+
+  # ==================
+  # Grafana 
+  # ==================
+  grafana:
+    image: grafana/grafana:main
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # ==================
+  # Alertmanager
+  # ==================
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+
+volumes:
+  auth_mongo_data: {}
+  users_mongo_data: {}
+  tools_mongo_data: {}
+  requests_mongo_data: {}
+  warehouses_mongo_data: {}
+  grafana-data: {}

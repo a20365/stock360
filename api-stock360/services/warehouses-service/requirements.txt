@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+motor
+python-jose[cryptography]
+pydantic[email]
+passlib[bcrypt]
+prometheus-client
+httpx
+pytest
+pytest-asyncio

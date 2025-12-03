@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - services/dep-auth-service.yaml
+  - services/dep-users-service.yaml
+  - services/dep-requests-service.yaml
+  - services/dep-tools-service.yaml
+  - services/dep-warehouses-service.yaml
+  - alertmanager/dep-alertmanager.yaml
+  - grafana/dep-grafana.yaml
+  - prometheus/dep-prometheus.yaml
+  - mongodb/dep-auth-mongodb-service.yaml
+  - mongodb/dep-requests-mongodb-service.yaml
+  - mongodb/dep-tools-mongodb-service.yaml
+  - mongodb/dep-users-mongodb-service.yaml
+  - mongodb/dep-warehouses-mongodb-service.yaml
+  - hpa/hpa-auth-service.yaml
+  - hpa/hpa-requests-service.yaml
+  - hpa/hpa-tools-service.yaml
+  - hpa/hpa-users-service.yaml
+  - hpa/hpa-warehouses-service.yaml
+
+configMapGenerator:
+  - name: env-config
+    envs:
+      - .env
+
+  - name: prometheus-rules
+    files:
+      - alert.rules.yml
+
+secretGenerator:
+  - name: mongo-secret
+    envs:
+      - mongo-creds.env

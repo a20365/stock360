@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: cruzmosergio/auth-service:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_URL
+              value: "mongodb://$(AUTH_DB_USER):$(AUTH_DB_PASS)@auth-mongo:27017/$(AUTH_DB)?authSource=admin"
+          envFrom:
+            - configMapRef:
+                name: env-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8000
+      nodePort: 30081

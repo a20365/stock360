@@ -1,0 +1,4 @@
+api-stock360/minikube/mongo-creds.env
+api-stock360/minikube/.env
+api-stock360/.env
+.vscode/

@@ -1,0 +1,90 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Dashboard simplificado dos microserviços Auth e Users",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Auth Service Status",
+      "gridPos": {"x":0,"y":0,"w":6,"h":4},
+      "targets": [
+        {
+          "expr": "up{job=\"auth-service\"}",
+          "datasource": "Prometheus",
+          "instant": true
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {"calcs":["last"],"values":false},
+        "textMode": "value"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Users Service Status",
+      "gridPos": {"x":6,"y":0,"w":6,"h":4},
+      "targets": [
+        {
+          "expr": "up{job=\"users-service\"}",
+          "datasource": "Prometheus",
+          "instant": true
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {"calcs":["last"],"values":false},
+        "textMode": "value"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests Rate (req/s)",
+      "gridPos": {"x":0,"y":4,"w":12,"h":6},
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{service=\"auth-service\"}[1m])",
+          "legendFormat": "Auth Service",
+          "datasource": "Prometheus"
+        },
+        {
+          "expr": "rate(http_requests_total{service=\"users-service\"}[1m])",
+          "legendFormat": "Users Service",
+          "datasource": "Prometheus"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Request Latency (ms, p95)",
+      "gridPos": {"x":0,"y":10,"w":12,"h":6},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=\"auth-service\"}[1m])) by (le)) * 1000",
+          "legendFormat": "Auth Service",
+          "datasource": "Prometheus"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=\"users-service\"}[1m])) by (le)) * 1000",
+          "legendFormat": "Users Service",
+          "datasource": "Prometheus"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 37,
+  "version": 1,
+  "tags": ["microservices", "prometheus", "monitoring"]
+}

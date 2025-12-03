@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+      smtp_smarthost: smtp.gmail.com:587
+      smtp_from: ${SMTP_FROM}
+      smtp_auth_username: ${SMTP_FROM}
+      smtp_auth_password: ${SMTP_PASSWORD}
+
+    route:
+      receiver: "email"
+
+    receivers:
+      - name: "email"
+        email_configs:
+          - to: ${SMTP_TO_EMAIL}
+            send_resolved: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              CONFIG_PATH=/etc/alertmanager/alertmanager.yml
+              TEMP_PATH=/tmp/alertmanager.yml
+              
+              # 1. Substitute all three SMTP variables using 'sed' with ':' as a delimiter.
+              # 2. Write the result to a temporary file.
+              # 3. Launch Alertmanager using the processed config file.
+              sed -e "s:\$${SMTP_FROM}:$SMTP_FROM:g" \
+                  -e "s:\$${SMTP_PASSWORD}:$SMTP_PASSWORD:g" \
+                  -e "s:\$${SMTP_TO_EMAIL}:$SMTP_TO_EMAIL:g" \
+                  "$CONFIG_PATH" > "$TEMP_PATH" \
+                  && /bin/alertmanager --config.file="$TEMP_PATH"
+          ports:
+            - containerPort: 9093
+          envFrom:
+            - configMapRef:
+                name: env-config
+          volumeMounts:
+            - name: alertmanager-config-volume
+              mountPath: /etc/alertmanager
+      volumes:
+        - name: alertmanager-config-volume
+          configMap:
+            name: alertmanager-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-service
+spec:
+  selector:
+    app: alertmanager
+  type: NodePort        
+  ports:
+    - port: 9093  
+      targetPort: 9093 
+      nodePort: 30093 

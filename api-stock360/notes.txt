@@ -1,0 +1,28 @@
+cd C:\Users\SergioCruz\Desktop\MEI\AIS\Projeto\stock360\api-stock360\services\users-service; python -m pytest -q
+
+cd C:/Users/SergioCruz/Desktop/MEI/AIS/Projeto/stock360/api-stock360/minikube
+
+minikube delete
+
+minikube start
+
+kubectl apply -k .
+
+kubectl get pods
+
+minikube addons enable metrics-server
+
+kubectl logs <name>
+
+kubectl rollout restart deployment/alertmanager
+
+kubectl port-forward service/auth-mongo 27017:27017
+kubectl port-forward service/users-mongo 27018:27017
+kubectl port-forward service/tools-mongo 27019:27017
+kubectl port-forward service/requests-mongo 27020:27017
+kubectl port-forward service/warehouses-mongo 27021:27017
+kubectl port-forward service/alertmanager-service 9093:9093
+kubectl port-forward service/prometheus-service 9090:9090
+kubectl port-forward service/grafana-service 3000:3000
+kubectl port-forward service/auth-service 8000:80
+kubectl port-forward service/users-service 8001:80

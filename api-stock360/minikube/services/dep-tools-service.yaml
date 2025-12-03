@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tools-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tools
+  template:
+    metadata:
+      labels:
+        app: tools
+    spec:
+      containers:
+        - name: tools
+          image: cruzmosergio/tools-service:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_URL
+              value: "mongodb://$(TOOLS_DB_USER):$(TOOLS_DB_PASS)@tools-mongo:27017/$(TOOLS_DB)?authSource=admin"
+          envFrom:
+            - configMapRef:
+                name: env-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tools-service
+spec:
+  selector:
+    app: tools
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8000
+      nodePort: 30083

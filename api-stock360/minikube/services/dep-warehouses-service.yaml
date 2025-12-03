@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouses-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: warehouses
+  template:
+    metadata:
+      labels:
+        app: warehouses
+    spec:
+      containers:
+        - name: warehouses
+          image: cruzmosergio/warehouses-service:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_URL
+              value: "mongodb://$(WAREHOUSES_DB_USER):$(WAREHOUSES_DB_PASS)@warehouses-mongo:27017/$(WAREHOUSES_DB)?authSource=admin"
+          envFrom:
+            - configMapRef:
+                name: env-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouses-service
+spec:
+  selector:
+    app: warehouses
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8000
+      nodePort: 30084

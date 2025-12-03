@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users
+          image: cruzmosergio/users-service:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_URL
+              value: "mongodb://$(USERS_DB_USER):$(USERS_DB_PASS)@users-mongo:27017/$(USERS_DB)?authSource=admin"
+          envFrom:
+            - configMapRef:
+                name: env-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+spec:
+  selector:
+    app: users
+  type: NodePort
+  ports:
+    - port: 80        
+      targetPort: 8000
+      nodePort: 30080

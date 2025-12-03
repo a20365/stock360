@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: requests-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: requests
+  template:
+    metadata:
+      labels:
+        app: requests
+    spec:
+      containers:
+        - name: requests
+          image: cruzmosergio/requests-service:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_URL
+              value: "mongodb://$(REQUESTS_DB_USER):$(REQUESTS_DB_PASS)@requests-mongo:27017/$(REQUESTS_DB)?authSource=admin"
+          envFrom:
+            - configMapRef:
+                name: env-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: requests-service
+spec:
+  selector:
+    app: requests
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8000
+      nodePort: 30082

@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'auth-service'
+        static_configs:
+          - targets: ['auth-service:80']
+        metrics_path: '/metrics'
+      - job_name: 'users-service'
+        static_configs:
+          - targets: ['users-service:80']
+        metrics_path: '/metrics'
+      - job_name: 'requests-service'
+        static_configs:
+          - targets: ['requests-service:80']
+        metrics_path: '/metrics'
+      - job_name: 'tools-service'
+        static_configs:
+          - targets: ['tools-service:80']
+        metrics_path: '/metrics'
+      - job_name: 'warehouses-service'
+        static_configs:
+          - targets: ['warehouses-service:80']
+        metrics_path: '/metrics'
+    
+    rule_files:
+      - "/etc/prometheus/rules/alert.rules.yml" 
+    
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ['alertmanager-service:9093'] # Note: Uses internal Cluster IP service name and port
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus
+          
+            - name: prometheus-rules-volume 
+              mountPath: /etc/prometheus/rules 
+      
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            name: prometheus-config
+        
+        - name: prometheus-rules-volume
+          configMap:
+            name: prometheus-rules
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+spec:
+  selector:
+    app: prometheus
+  type: NodePort
+  ports:
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30090         
