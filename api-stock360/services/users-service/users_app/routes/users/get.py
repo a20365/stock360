@@ -16,7 +16,10 @@ def get_app() -> FastAPI:
     "/{user_id}",
     response_model=User,
     summary="Get user",
-    description="Devolve o perfil do utilizador identificado por `user_id`. O utilizador autenticado só pode aceder ao próprio perfil, exceto admin.",
+    description=(
+        "Devolve o perfil do utilizador identificado por `user_id`. "
+        "O utilizador autenticado só pode aceder ao próprio perfil, exceto admin."
+    ),
     responses={
         403: {"description": "Forbidden - access other user's profile"},
         404: {"description": "User not found"},

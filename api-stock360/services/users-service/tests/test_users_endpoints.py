@@ -14,9 +14,8 @@ sys.path.insert(0, str(SERVICE_ROOT))
 # Set env var for API key used by auth helper
 os.environ.setdefault("USERS_API_KEY", "testkey")
 
-# import app
-import users_app.main as main_module
-from users_app.main import app
+# import app (env var set before import intentionally)
+from users_app.main import app  # noqa: E402
 
 
 class InsertResult:

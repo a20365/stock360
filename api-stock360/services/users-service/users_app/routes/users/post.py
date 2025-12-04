@@ -15,7 +15,10 @@ def get_app() -> FastAPI:
     response_model=User,
     include_in_schema=False,
     summary="Create user (internal)",
-    description="Cria um utilizador usando um ID já definido. Endpoint destinado a uso interno (excluído do esquema público).",
+    description=(
+        "Cria um utilizador usando um ID já definido. Endpoint destinado a uso "
+        "interno (excluído do esquema público)."
+    ),
     responses={400: {"description": "User ID must be provided."}},
 )
 async def create_user(user: UserCreate, app: FastAPI = Depends(get_app)):
