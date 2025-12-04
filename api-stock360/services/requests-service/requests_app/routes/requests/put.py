@@ -21,7 +21,11 @@ def get_app() -> FastAPI:
     response_model=RequestResponse,
     summary="Update request",
     description="Atualiza uma requisição existente. Só o dono ou admin pode atualizar; apenas admin pode alterar o status.",
-    responses={400: {"description": "Invalid Request ID format"}, 403: {"description": "Forbidden"}, 404: {"description": "Request not found"}},
+    responses={
+        400: {"description": "Invalid Request ID format"},
+        403: {"description": "Forbidden"},
+        404: {"description": "Request not found"},
+    },
 )
 async def update_request(
     request_id: str,
@@ -38,7 +42,10 @@ async def update_request(
     if not existing_request:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    if current_user.sub != existing_request.get("user_id") and current_user.role != "admin":
+    if (
+        current_user.sub != existing_request.get("user_id")
+        and current_user.role != "admin"
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only update your own requests or require admin privileges.",
@@ -55,8 +62,7 @@ async def update_request(
     if update_data:
         update_data["updated_at"] = datetime.utcnow()
         await app.mongodb["requests"].update_one(
-            {"_id": object_id},
-            {"$set": update_data}
+            {"_id": object_id}, {"$set": update_data}
         )
 
     updated_request = await app.mongodb["requests"].find_one({"_id": object_id})

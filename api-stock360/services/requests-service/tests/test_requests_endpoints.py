@@ -165,7 +165,9 @@ from httpx import AsyncClient, ASGITransport
 @pytest_asyncio.fixture()
 async def ac():
     """AsyncClient fixture for tests."""
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
 
@@ -197,7 +199,10 @@ async def test_create_request(ac):
     r = await ac.post("/requests/", json=payload, headers=headers)
     assert r.status_code == 200
     created = r.json()
-    assert created.get("description") == "Create test" or created.get("description") == payload["description"]
+    assert (
+        created.get("description") == "Create test"
+        or created.get("description") == payload["description"]
+    )
 
 
 @pytest.mark.asyncio
@@ -209,13 +214,18 @@ async def test_list_and_get_request(ac):
     r = await ac.get("/requests/", headers=headers)
     assert r.status_code == 200
     all_reqs = r.json()
-    assert any(req.get("id") == str(ObjectId(created_id)) or req.get("id") == created_id for req in all_reqs)
+    assert any(
+        req.get("id") == str(ObjectId(created_id)) or req.get("id") == created_id
+        for req in all_reqs
+    )
 
     # get
     r = await ac.get(f"/requests/{created_id}", headers=headers)
     assert r.status_code == 200
     single = r.json()
-    assert single.get("id") == str(ObjectId(created_id)) or single.get("id") == created_id
+    assert (
+        single.get("id") == str(ObjectId(created_id)) or single.get("id") == created_id
+    )
 
 
 @pytest.mark.asyncio
@@ -243,9 +253,13 @@ async def test_delete_request(ac):
     # confirm deletion
     r = await ac.get(f"/requests/{created_id}", headers=headers)
     assert r.status_code == 404
+
+
 @pytest.mark.asyncio
 async def test_create_get_update_delete_request():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         headers = {"X-API-Key": "testkey"}
 
         # Create request
@@ -257,7 +271,10 @@ async def test_create_get_update_delete_request():
         assert r.status_code == 200
         created = r.json()
         # ensure response contains the description or the DB insert happened
-        assert created.get("description") == "Test project" or created.get("description") == payload["description"]
+        assert (
+            created.get("description") == "Test project"
+            or created.get("description") == payload["description"]
+        )
         created_id = created.get("id") or created.get("_id")
         # if the response didn't include an id, read it from the fake DB
         if not created_id:
@@ -281,7 +298,10 @@ async def test_create_get_update_delete_request():
         r = await ac.get("/requests/", headers=headers)
         assert r.status_code == 200
         all_reqs = r.json()
-        assert any(req["id"] == str(ObjectId(created_id)) or req.get("id") == created_id for req in all_reqs)
+        assert any(
+            req["id"] == str(ObjectId(created_id)) or req.get("id") == created_id
+            for req in all_reqs
+        )
 
         # Get single request
         r = await ac.get(f"/requests/{created_id}", headers=headers)
@@ -291,7 +311,9 @@ async def test_create_get_update_delete_request():
 
         # Update request
         update_payload = {"description": "Updated project"}
-        r = await ac.put(f"/requests/{created_id}", json=update_payload, headers=headers)
+        r = await ac.put(
+            f"/requests/{created_id}", json=update_payload, headers=headers
+        )
         assert r.status_code == 200
         updated = r.json()
         # description may be present in payload or model

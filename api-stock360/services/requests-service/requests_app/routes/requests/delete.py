@@ -1,29 +1,33 @@
 from bson import ObjectId
-from ...models import  UserInToken
+from ...models import UserInToken
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
 from starlette import status
 from ...routes.requests.utils import get_current_user
 
 router = APIRouter()
 
+
 def get_app() -> FastAPI:
     from ...main import app
 
     return app
+
 
 @router.delete(
     "/{request_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete request",
     description="Elimina uma requisição; apenas o dono ou admin pode eliminar.",
-    responses={400: {"description": "Invalid Request ID format"}, 403: {"description": "Forbidden"}},
+    responses={
+        400: {"description": "Invalid Request ID format"},
+        403: {"description": "Forbidden"},
+    },
 )
 async def delete_request(
     request_id: str,
     app: FastAPI = Depends(get_app),
     current_user: UserInToken = Depends(get_current_user),
 ):
-
     try:
         object_id = ObjectId(request_id)
     except Exception:

@@ -8,6 +8,7 @@ from ...routes.warehouses.utils import get_current_admin
 
 router = APIRouter()
 
+
 def get_app() -> FastAPI:
     from ...main import app
 
@@ -20,7 +21,10 @@ def get_app() -> FastAPI:
     status_code=status.HTTP_201_CREATED,
     summary="Create warehouse",
     description="Cria um novo armazém. Requer privilégios de administrador.",
-    responses={400: {"description": "Validation error"}, 500: {"description": "Failed to retrieve created warehouse"}},
+    responses={
+        400: {"description": "Validation error"},
+        500: {"description": "Failed to retrieve created warehouse"},
+    },
 )
 async def create_warehouse(
     warehouse: WarehouseCreate,
@@ -34,11 +38,15 @@ async def create_warehouse(
     new_warehouse_data["updated_at"] = current_time
 
     insert_result = await app.mongodb["warehouses"].insert_one(new_warehouse_data)
-    
-    created_warehouse = await app.mongodb["warehouses"].find_one({"_id": insert_result.inserted_id})
-    
+
+    created_warehouse = await app.mongodb["warehouses"].find_one(
+        {"_id": insert_result.inserted_id}
+    )
+
     if created_warehouse:
         created_warehouse["id"] = str(created_warehouse.pop("_id"))
         return Warehouse(**created_warehouse)
     else:
-        raise HTTPException(status_code=500, detail="Failed to retrieve created warehouse")
+        raise HTTPException(
+            status_code=500, detail="Failed to retrieve created warehouse"
+        )

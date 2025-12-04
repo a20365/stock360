@@ -10,17 +10,22 @@ from ...routes.warehouses.utils import get_current_admin
 
 router = APIRouter()
 
+
 def get_app() -> FastAPI:
     from ...main import app
 
     return app
+
 
 @router.put(
     "/{warehouse_id}",
     response_model=WarehouseResponse,
     summary="Update warehouse",
     description="Atualiza um armazém existente. Requer privilégios de administrador.",
-    responses={400: {"description": "Invalid Warehouse ID format or no fields to update"}, 404: {"description": "Warehouse not found"}},
+    responses={
+        400: {"description": "Invalid Warehouse ID format or no fields to update"},
+        404: {"description": "Warehouse not found"},
+    },
 )
 async def update_warehouse(
     warehouse_id: str,
@@ -41,8 +46,7 @@ async def update_warehouse(
     update_data["updated_at"] = datetime.utcnow()
 
     result = await app.mongodb["warehouses"].update_one(
-        {"_id": object_id},
-        {"$set": update_data}
+        {"_id": object_id}, {"$set": update_data}
     )
 
     if result.matched_count == 0:
@@ -54,4 +58,6 @@ async def update_warehouse(
         updated_warehouse["id"] = str(updated_warehouse.pop("_id"))
         return WarehouseResponse(**updated_warehouse)
     else:
-        raise HTTPException(status_code=500, detail="Failed to retrieve updated warehouse")
+        raise HTTPException(
+            status_code=500, detail="Failed to retrieve updated warehouse"
+        )

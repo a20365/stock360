@@ -3,7 +3,7 @@ import os
 from ...models import UserInToken
 from ...security import decode_token
 from fastapi import Depends, HTTPException, Security
-from fastapi.security import (APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer)
+from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
 
 USERS_API_KEY = os.getenv("USERS_API_KEY")
 oauth2_scheme = HTTPBearer(auto_error=False)

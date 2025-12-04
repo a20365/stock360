@@ -59,7 +59,10 @@ async def add_prometheus_metrics(request: Request, call_next):
             ).inc()
 
     REQUESTS_TOTAL.labels(
-        method=method, endpoint=endpoint, status_code=status_code, service=TOOLS_SERVICE_NAME
+        method=method,
+        endpoint=endpoint,
+        status_code=status_code,
+        service=TOOLS_SERVICE_NAME,
     ).inc()
 
     latency = time.time() - start_time

@@ -2,7 +2,7 @@ import os
 
 from ...security import decode_token
 from fastapi import Depends, HTTPException, Security
-from fastapi.security import (APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer)
+from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
 
 from ...models import UserInToken
 

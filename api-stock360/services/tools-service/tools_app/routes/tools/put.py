@@ -20,7 +20,11 @@ def get_app() -> FastAPI:
     response_model=ItemResponse,
     summary="Update item",
     description="Atualiza um item do inventário. Requer papel de administrador.",
-    responses={400: {"description": "Invalid Item ID or no fields"}, 403: {"description": "Access denied"}, 404: {"description": "Item not found"}},
+    responses={
+        400: {"description": "Invalid Item ID or no fields"},
+        403: {"description": "Access denied"},
+        404: {"description": "Item not found"},
+    },
 )
 async def update_item(
     item_id: str,
@@ -29,8 +33,10 @@ async def update_item(
     current_admin: UserInToken = Depends(get_current_admin),
 ):
     if current_admin.role != "admin":
-        raise HTTPException(status_code=403, detail="Access denied. Requires 'admin' role.")
-    
+        raise HTTPException(
+            status_code=403, detail="Access denied. Requires 'admin' role."
+        )
+
     try:
         object_id = ObjectId(item_id)
     except Exception:
@@ -44,8 +50,7 @@ async def update_item(
     update_data["updated_at"] = datetime.utcnow()
 
     result = await app.mongodb["inventory"].update_one(
-        {"_id": object_id},
-        {"$set": update_data}
+        {"_id": object_id}, {"$set": update_data}
     )
 
     if result.matched_count == 0:

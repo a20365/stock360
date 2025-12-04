@@ -140,7 +140,9 @@ def set_fake_db(monkeypatch):
 
 @pytest_asyncio.fixture()
 async def ac():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
 
@@ -188,12 +190,17 @@ async def test_list_and_get_item(ac):
     r = await ac.get("/tools/", headers=headers)
     assert r.status_code == 200
     items = r.json()
-    assert any(it.get("id") == str(ObjectId(created_id)) or it.get("id") == created_id for it in items)
+    assert any(
+        it.get("id") == str(ObjectId(created_id)) or it.get("id") == created_id
+        for it in items
+    )
 
     r = await ac.get(f"/tools/{created_id}", headers=headers)
     assert r.status_code == 200
     single = r.json()
-    assert single.get("id") == str(ObjectId(created_id)) or single.get("id") == created_id
+    assert (
+        single.get("id") == str(ObjectId(created_id)) or single.get("id") == created_id
+    )
 
 
 @pytest.mark.asyncio

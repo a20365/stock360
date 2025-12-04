@@ -19,12 +19,12 @@ def get_app() -> FastAPI:
     response_model=ItemResponse,
     summary="Get item",
     description="Recupera um item do inventário por ID.",
-    responses={400: {"description": "Invalid Item ID format"}, 404: {"description": "Item not found"}},
+    responses={
+        400: {"description": "Invalid Item ID format"},
+        404: {"description": "Item not found"},
+    },
 )
-async def get_item(
-    item_id: str,
-    app: FastAPI = Depends(get_app)
-):
+async def get_item(item_id: str, app: FastAPI = Depends(get_app)):
     try:
         object_id = ObjectId(item_id)
     except Exception:
@@ -55,14 +55,14 @@ async def list_items(
 
     if category_id:
         query_filter["category_id"] = category_id
-    
+
     query_filter["is_active"] = is_active
-    
+
     items_cursor = app.mongodb["inventory"].find(query_filter).sort("name", 1)
-    
+
     items_list = []
     async for item in items_cursor:
         item["id"] = str(item.pop("_id"))
         items_list.append(ItemResponse(**item))
-        
+
     return items_list

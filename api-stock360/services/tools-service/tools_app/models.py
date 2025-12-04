@@ -5,25 +5,43 @@ from pydantic import BaseModel, Field, confloat
 
 
 class UserInToken(BaseModel):
-    sub: str = Field(..., description="The user ID of the authenticated user (subject).")
-    role: str = Field(..., description="The role of the authenticated user (e.g., 'user', 'admin').")
+    sub: str = Field(
+        ..., description="The user ID of the authenticated user (subject)."
+    )
+    role: str = Field(
+        ..., description="The role of the authenticated user (e.g., 'user', 'admin')."
+    )
 
 
 class Item(BaseModel):
     """Base model for an Item document in inventory."""
+
     id: Optional[str] = Field(None, alias="_id")
-    name: str = Field(..., description="Descriptive name of the material (e.g., 'Cement Bag - Type II').")
-    description: Optional[str] = Field(None, description="Detailed description of the item.")
-    unit: str = Field(..., description="The unit of measure (e.g., 'bags', 'meters', 'pieces').")
-    
+    name: str = Field(
+        ...,
+        description="Descriptive name of the material (e.g., 'Cement Bag - Type II').",
+    )
+    description: Optional[str] = Field(
+        None, description="Detailed description of the item."
+    )
+    unit: str = Field(
+        ..., description="The unit of measure (e.g., 'bags', 'meters', 'pieces')."
+    )
+
     quantity_on_hand: confloat(ge=0) = Field(..., description="Current stock quantity.")
     min_quantity: confloat(ge=0) = Field(0, description="Minimum reorder quantity.")
-    
-    category_id: Optional[str] = Field(None, description="ID linking to a material category.")
-    warehouse_id: Optional[str] = Field(None, description="ID linking to the storage warehouse location.")
-    
-    is_active: bool = Field(True, description="Whether the item is currently active in the inventory.")
-    
+
+    category_id: Optional[str] = Field(
+        None, description="ID linking to a material category."
+    )
+    warehouse_id: Optional[str] = Field(
+        None, description="ID linking to the storage warehouse location."
+    )
+
+    is_active: bool = Field(
+        True, description="Whether the item is currently active in the inventory."
+    )
+
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +52,7 @@ class Item(BaseModel):
 
 class ItemCreate(BaseModel):
     """Model for creating a new Item."""
+
     name: str
     description: Optional[str] = None
     unit: str
@@ -46,6 +65,7 @@ class ItemCreate(BaseModel):
 
 class ItemUpdate(BaseModel):
     """Model for partial updates to an existing Item."""
+
     name: Optional[str] = None
     description: Optional[str] = None
     unit: Optional[str] = None
@@ -58,6 +78,7 @@ class ItemUpdate(BaseModel):
 
 class ItemResponse(BaseModel):
     """Simplified response model for Item data sent back to the client."""
+
     id: str
     name: str
     unit: str

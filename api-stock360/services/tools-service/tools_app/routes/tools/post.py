@@ -19,7 +19,10 @@ def get_app() -> FastAPI:
     status_code=status.HTTP_201_CREATED,
     summary="Create item",
     description="Cria um novo item de inventário. Requer papel de administrador.",
-    responses={400: {"description": "Validation error"}, 403: {"description": "Access denied"}},
+    responses={
+        400: {"description": "Validation error"},
+        403: {"description": "Access denied"},
+    },
 )
 async def create_item(
     item: ItemCreate,
@@ -27,7 +30,9 @@ async def create_item(
     current_admin: UserInToken = Depends(get_current_admin),
 ):
     if current_admin.role != "admin":
-        raise HTTPException(status_code=403, detail="Access denied. Requires 'admin' role.")
+        raise HTTPException(
+            status_code=403, detail="Access denied. Requires 'admin' role."
+        )
 
     new_item_data = item.dict()
 
@@ -36,9 +41,11 @@ async def create_item(
     new_item_data["updated_at"] = current_time
 
     insert_result = await app.mongodb["inventory"].insert_one(new_item_data)
-    
-    created_item = await app.mongodb["inventory"].find_one({"_id": insert_result.inserted_id})
-    
+
+    created_item = await app.mongodb["inventory"].find_one(
+        {"_id": insert_result.inserted_id}
+    )
+
     if created_item:
         created_item["id"] = str(created_item.pop("_id"))
         return Item(**created_item)

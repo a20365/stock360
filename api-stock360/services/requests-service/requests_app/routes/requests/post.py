@@ -17,10 +17,13 @@ def get_app() -> FastAPI:
     response_model=Request,
     summary="Create request",
     description="Cria uma nova requisição de material associada ao utilizador autenticado.",
-    responses={400: {"description": "Validation error"}, 500: {"description": "Failed to retrieve created request"}},
+    responses={
+        400: {"description": "Validation error"},
+        500: {"description": "Failed to retrieve created request"},
+    },
 )
 async def create_request(
-    request: RequestCreate, 
+    request: RequestCreate,
     app: FastAPI = Depends(get_app),
     current_user: UserInToken = Depends(get_current_user),
 ):
@@ -34,11 +37,15 @@ async def create_request(
     new_request_data["updated_at"] = current_time
 
     insert_result = await app.mongodb["requests"].insert_one(new_request_data)
-    
-    created_request = await app.mongodb["requests"].find_one({"_id": insert_result.inserted_id})
-    
+
+    created_request = await app.mongodb["requests"].find_one(
+        {"_id": insert_result.inserted_id}
+    )
+
     if created_request:
         created_request["id"] = str(created_request.pop("_id"))
         return Request(**created_request)
     else:
-        raise HTTPException(status_code=500, detail="Failed to retrieve created request")
+        raise HTTPException(
+            status_code=500, detail="Failed to retrieve created request"
+        )

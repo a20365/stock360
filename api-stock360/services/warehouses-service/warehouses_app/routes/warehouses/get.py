@@ -6,17 +6,22 @@ from ...routes.warehouses.utils import get_current_admin
 
 router = APIRouter()
 
+
 def get_app() -> FastAPI:
     from ...main import app
 
     return app
+
 
 @router.get(
     "/{warehouse_id}",
     response_model=WarehouseResponse,
     summary="Get warehouse",
     description="Recupera um armazém por ID. Requer privilégios de administrador.",
-    responses={400: {"description": "Invalid Warehouse ID format"}, 404: {"description": "Warehouse not found"}},
+    responses={
+        400: {"description": "Invalid Warehouse ID format"},
+        404: {"description": "Warehouse not found"},
+    },
 )
 async def get_warehouse(
     warehouse_id: str,
@@ -48,10 +53,10 @@ async def list_warehouses(
     current_admin: UserInToken = Depends(get_current_admin),
 ):
     warehouses_cursor = app.mongodb["warehouses"].find().sort("name", 1)
-    
+
     warehouses_list = []
     async for warehouse in warehouses_cursor:
         warehouse["id"] = str(warehouse.pop("_id"))
         warehouses_list.append(WarehouseResponse(**warehouse))
-        
+
     return warehouses_list

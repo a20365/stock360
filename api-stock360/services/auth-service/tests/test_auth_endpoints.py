@@ -106,7 +106,9 @@ def set_fake_db(monkeypatch):
 
 @pytest_asyncio.fixture()
 async def ac():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
 
@@ -132,7 +134,15 @@ async def test_login_invalid_credentials(ac):
     # prepare a user directly in fake DB with hashed password
     user_id = str(ObjectId())
     hashed = hash_password("mypassword")
-    app.mongodb.users._data[user_id] = {"_id": user_id, "name": "U", "email": "u@example.com", "password": hashed, "role": "user"}
+    app.mongodb.users._data[user_id] = {
+        "_id": user_id,
+        "name": "U",
+        "email": "u@example.com",
+        "password": hashed,
+        "role": "user",
+    }
 
-    r = await ac.post("/auth/login", json={"email": "u@example.com", "password": "wrong"})
+    r = await ac.post(
+        "/auth/login", json={"email": "u@example.com", "password": "wrong"}
+    )
     assert r.status_code == 401

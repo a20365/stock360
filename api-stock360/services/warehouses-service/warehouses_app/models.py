@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+
 class UserInToken(BaseModel):
     sub: str = Field(..., description="The user ID of the authenticated user.")
     role: str = Field(..., description="The role of the authenticated user.")
@@ -16,10 +17,15 @@ class Location(BaseModel):
 
 class Warehouse(BaseModel):
     """Base model for a Warehouse document."""
+
     id: Optional[str] = Field(None, alias="_id")
-    name: str = Field(..., description="The name of the warehouse (e.g., 'Main Distribution Center').")
-    location: Location = Field(..., description="Geographical location of the warehouse.")
-    
+    name: str = Field(
+        ..., description="The name of the warehouse (e.g., 'Main Distribution Center')."
+    )
+    location: Location = Field(
+        ..., description="Geographical location of the warehouse."
+    )
+
     created_at: datetime
     updated_at: datetime
 
@@ -30,18 +36,21 @@ class Warehouse(BaseModel):
 
 class WarehouseCreate(BaseModel):
     """Model for creating a new Warehouse."""
+
     name: str
     location: Location
 
 
 class WarehouseUpdate(BaseModel):
     """Model for partial updates to an existing Warehouse."""
+
     name: Optional[str] = None
     location: Optional[Location] = None
 
 
 class WarehouseResponse(BaseModel):
     """Simplified response model for Warehouse data."""
+
     id: str
     name: str
     location: Location
