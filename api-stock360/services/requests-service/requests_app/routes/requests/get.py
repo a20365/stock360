@@ -67,8 +67,8 @@ async def get_request(
     "/",
     response_model=List[RequestResponse],
     summary="List requests",
-    description="Lista requisições. Admins podem ver todas e filtrar por utilizador; utilizadores normais " \
-    "veem apenas as suas.",
+    description="Lista requisições. Admins podem ver todas e filtrar por utilizador;"
+    "utilizadores normais veem apenas as suas.",
     responses={200: {"description": "Lista de requisições retornada"}},
 )
 async def list_requests(
@@ -108,8 +108,8 @@ async def list_requests(
     "/date-range/",
     response_model=List[RequestResponse],
     summary="Get requests by date range",
-    description="Obtém requisições num intervalo de datas (YYYY-MM-DD). Admins podem ver todas; utilizadores " \
-    "apenas as suas.",
+    description="Obtém requisições num intervalo de datas (YYYY-MM-DD). Admins podem ver todas; "
+    "utilizadores apenas as suas.",
     responses={400: {"description": "Invalid date format"}},
 )
 async def get_requests_by_date_range(
