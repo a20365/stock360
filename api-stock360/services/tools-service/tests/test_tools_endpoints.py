@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 import pytest
 import pytest_asyncio
-from datetime import datetime
+# datetime not used in tests; remove import
 from bson import ObjectId
 
 from httpx import AsyncClient, ASGITransport
@@ -15,9 +15,8 @@ sys.path.insert(0, str(SERVICE_ROOT))
 # Set env vars for auth helpers (if any)
 os.environ.setdefault("TOOLS_API_KEY", "testkey")
 
-# import app
-import tools_app.main as main_module
-from tools_app.main import app
+# import app (env var set before import intentionally)
+from tools_app.main import app  # noqa: E402
 
 
 class InsertResult:

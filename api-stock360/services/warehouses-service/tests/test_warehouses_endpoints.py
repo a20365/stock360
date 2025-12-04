@@ -14,9 +14,9 @@ sys.path.insert(0, str(SERVICE_ROOT))
 # Set env var for admin API key used by auth helper
 os.environ.setdefault("WAREHOUSES_API_KEY", "testkey")
 
-# import app
-import warehouses_app.main as main_module
-from warehouses_app.main import app
+# import app (keep env var before import intentionally)
+import warehouses_app.main as main_module  # noqa: E402
+from warehouses_app.main import app  # noqa: E402
 
 
 class InsertResult:

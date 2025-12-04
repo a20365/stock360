@@ -1,8 +1,7 @@
 from typing import List, Optional
 from bson import ObjectId
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
-from starlette import status
-from ...models import Item, ItemResponse, UserInToken
+from ...models import ItemResponse, UserInToken
 from ...routes.tools.utils import get_current_admin
 
 router = APIRouter()

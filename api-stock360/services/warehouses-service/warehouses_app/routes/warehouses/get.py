@@ -1,7 +1,7 @@
 from typing import List
 from bson import ObjectId
 from fastapi import APIRouter, Depends, FastAPI, HTTPException
-from ...models import Warehouse, WarehouseResponse, UserInToken
+from ...models import WarehouseResponse, UserInToken
 from ...routes.warehouses.utils import get_current_admin
 
 router = APIRouter()
