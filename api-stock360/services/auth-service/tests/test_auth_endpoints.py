@@ -18,8 +18,8 @@ os.environ.setdefault("ALGORITHM", "HS256")
 os.environ.setdefault("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
 
 # import app (env vars set above intentionally)
-import auth_app.main as main_module  # noqa: E402
-from auth_app.main import app  # noqa: E402
+import auth_app.main as main_module
+from auth_app.main import app
 
 # import hash_password to prepare test flows
 from auth_app.security import hash_password
