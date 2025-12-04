@@ -1,9 +1,18 @@
 from bson import ObjectId
-from fastapi import APIRouter, Depends, FastAPI, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    FastAPI,
+    HTTPException,
+)
 from typing import Dict, Any
 from datetime import datetime
 from starlette import status
-from ...models import RequestUpdate, RequestResponse, UserInToken
+from ...models import (
+    RequestUpdate,
+    RequestResponse,
+    UserInToken,
+)
 from ...routes.requests.utils import get_current_user
 
 router = APIRouter()
@@ -19,7 +28,10 @@ def get_app() -> FastAPI:
     "/{request_id}",
     response_model=RequestResponse,
     summary="Update request",
-    description="Atualiza uma requisição existente. Só o dono ou admin pode atualizar; apenas admin pode alterar o status.",
+    description=(
+        "Atualiza uma requisição existente. Só o dono ou admin pode atualizar; "
+        "apenas admin pode alterar o status."
+    ),
     responses={
         400: {"description": "Invalid Request ID format"},
         403: {"description": "Forbidden"},

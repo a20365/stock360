@@ -10,15 +10,14 @@ os.environ.setdefault("REQUESTS_API_KEY", "testkey")
 os.environ.setdefault("DATABASE_URL", "mongodb://localhost:27017")
 os.environ.setdefault("REQUESTS_DB", "test_requests_db")
 
-import sys
-from pathlib import Path
+import sys  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 # Ensure the service package is importable when running pytest directly
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVICE_ROOT))
 
 # import the FastAPI app (absolute import now that sys.path includes service root)
-import requests_app.main as main_module  # noqa: E402
 from requests_app.main import app  # noqa: E402
 
 
@@ -157,12 +156,11 @@ def set_fake_db(monkeypatch):
     yield
 
 
-from httpx import AsyncClient, ASGITransport
-
-
 @pytest_asyncio.fixture()
 async def ac():
     """AsyncClient fixture for tests."""
+    from httpx import AsyncClient, ASGITransport
+
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
