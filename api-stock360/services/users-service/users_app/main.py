@@ -1,4 +1,5 @@
 import time
+import asyncio
 
 from fastapi import FastAPI
 from prometheus_client import Counter, Histogram, make_asgi_app
@@ -6,6 +7,7 @@ from starlette.requests import Request
 
 from .database import close_db, init_db
 from .routes.users import router as users_router
+from .messaging import start_consumer_background
 
 app = FastAPI(title="Users Service")
 
@@ -80,11 +82,19 @@ app.mount("/metrics", metrics_app)
 @app.on_event("startup")
 async def startup_event():
     init_db(app)
+    app.state.user_created_consumer = start_consumer_background(app)
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     close_db(app)
+    consumer = getattr(app.state, "user_created_consumer", None)
+    if consumer:
+        consumer.cancel()
+        try:
+            await consumer
+        except asyncio.CancelledError:
+            pass
 
 
 @app.get("/")

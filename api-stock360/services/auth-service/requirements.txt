@@ -9,3 +9,4 @@ httpx
 prometheus-client
 pytest
 pytest-asyncio
+aio-pika

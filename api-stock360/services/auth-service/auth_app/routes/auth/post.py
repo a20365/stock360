@@ -1,9 +1,9 @@
-import httpx
 from bson import ObjectId
 from fastapi import APIRouter, Depends, FastAPI, HTTPException
 
 from ...models import LoginRequest, TokenResponse, UserCreate, UserResponse
 from ...security import create_access_token, hash_password, verify_password
+from ...messaging import publish_user_created_event
 
 router = APIRouter()
 
@@ -43,16 +43,14 @@ async def register(user: UserCreate, app: FastAPI = Depends(get_app)):
         if created:
             created["id"] = str(created["_id"])
 
-            async with httpx.AsyncClient() as client:
-                await client.post(
-                    "http://users-service:80/users/",
-                    json={
-                        "id": created["id"],
-                        "name": user.name,
-                        "email": user.email,
-                        "role": "user",
-                    },
-                )
+            await publish_user_created_event(
+                {
+                    "id": created["id"],
+                    "name": user.name,
+                    "email": user.email,
+                    "role": "user",
+                }
+            )
 
             return UserResponse(**created)
         else:
