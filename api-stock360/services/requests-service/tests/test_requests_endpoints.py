@@ -1,8 +1,6 @@
 import os
 import pytest
 import pytest_asyncio
-import asyncio
-from datetime import datetime
 from bson import ObjectId
 
 from httpx import AsyncClient, ASGITransport
@@ -20,8 +18,8 @@ SERVICE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVICE_ROOT))
 
 # import the FastAPI app (absolute import now that sys.path includes service root)
-import requests_app.main as main_module
-from requests_app.main import app
+import requests_app.main as main_module  # noqa: E402
+from requests_app.main import app  # noqa: E402
 
 
 class InsertResult:
@@ -76,10 +74,10 @@ class FakeCollection:
                 if not isinstance(v, dict):
                     return False
                 g = v.get("$gte")
-                l = v.get("$lte")
+                lte = v.get("$lte")
                 if g and doc.get("created_at") < g:
                     return False
-                if l and doc.get("created_at") > l:
+                if lte and doc.get("created_at") > lte:
                     return False
                 continue
             if doc.get(k) != v:

@@ -61,9 +61,15 @@ async def list_requests(
     app: FastAPI = Depends(get_app),
     current_user: UserInToken = Depends(get_current_user),
     user_id: Optional[str] = Query(
-        None, description="Filter requests by user ID (admin only)"
+        None,
+        description=(
+            "Filter requests by user ID (admin only)"
+        ),
     ),
-    status_filter: Optional[str] = Query(None, description="Filter requests by status"),
+    status_filter: Optional[str] = Query(
+        None,
+        description="Filter requests by status",
+    ),
 ):
     query_filter = {}
 
@@ -105,7 +111,10 @@ async def get_requests_by_date_range(
         end_dt = datetime.strptime(end_date, "%Y-%m-%d")
     except ValueError:
         raise HTTPException(
-            status_code=400, detail="Invalid date format. Use YYYY-MM-DD."
+            status_code=400,
+            detail=(
+                "Invalid date format. Use YYYY-MM-DD."
+            ),
         )
 
     query_filter = {"created_at": {"$gte": start_dt, "$lte": end_dt}}

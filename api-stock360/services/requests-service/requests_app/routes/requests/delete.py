@@ -1,6 +1,6 @@
 from bson import ObjectId
 from ...models import UserInToken
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
+from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from starlette import status
 from ...routes.requests.utils import get_current_user
 
