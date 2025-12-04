@@ -10,8 +10,12 @@ class UserInToken(BaseModel):
 
 
 class Location(BaseModel):
-    lat: float = Field(..., description="Latitude coordinate.")
-    lon: float = Field(..., description="Longitude coordinate.")
+    lat: Optional[float] = Field(
+        None, description="Latitude coordinate (auto-filled from address when missing)."
+    )
+    lon: Optional[float] = Field(
+        None, description="Longitude coordinate (auto-filled from address when missing)."
+    )
     address: Optional[str] = Field(None, description="Physical street address.")
 
 

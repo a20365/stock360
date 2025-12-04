@@ -80,7 +80,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mongo-init
+  name: mongo-tools-init
 data:
   init-mongo.sh: |
     #!/bin/bash

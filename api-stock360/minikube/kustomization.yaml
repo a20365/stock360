@@ -20,6 +20,7 @@ resources:
   - hpa/hpa-tools-service.yaml
   - hpa/hpa-users-service.yaml
   - hpa/hpa-warehouses-service.yaml
+  - kong/dep-kong-gateway.yaml
 
 configMapGenerator:
   - name: env-config

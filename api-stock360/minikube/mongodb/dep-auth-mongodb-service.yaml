@@ -71,12 +71,12 @@ spec:
             claimName: mongo-auth-pvc
         - name: mongo-init-script
           configMap:
-            name: mongo-init
+            name: mongo-auth-init
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mongo-init
+  name: mongo-auth-init
 data:
   init-mongo.sh: |
     #!/bin/bash

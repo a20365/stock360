@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-declarative-config
+data:
+  kong.yml: |
+    _format_version: "3.0"
+    services:
+      - name: auth-service
+        url: http://auth-service:80
+        routes:
+          - name: auth-route
+            paths:
+              - /auth
+            strip_path: false
+      
+      - name: users-service
+        url: http://users-service:80
+        routes:
+          - name: users-route
+            paths:
+              - /users
+            strip_path: false
+      
+      - name: requests-service
+        url: http://requests-service:80
+        routes:
+          - name: requests-route
+            paths:
+              - /requests
+            strip_path: false
+      
+      - name: tools-service
+        url: http://tools-service:80
+        routes:
+          - name: tools-route
+            paths:
+              - /tools
+            strip_path: false
+      
+      - name: warehouses-service
+        url: http://warehouses-service:80
+        routes:
+          - name: warehouses-route
+            paths:
+              - /warehouses
+            strip_path: false
+    
+    plugins:
+      - name: correlation-id
+        config:
+          header_name: X-Correlation-ID
+          generator: uuid
+          echo_downstream: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong-gateway
+  template:
+    metadata:
+      labels:
+        app: kong-gateway
+    spec:
+      containers:
+        - name: kong
+          image: kong:3.4
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: "/etc/kong/kong.yml"
+            - name: KONG_PROXY_ACCESS_LOG
+              value: "/dev/stdout"
+            - name: KONG_ADMIN_ACCESS_LOG
+              value: "/dev/stdout"
+            - name: KONG_PROXY_ERROR_LOG
+              value: "/dev/stderr"
+            - name: KONG_ADMIN_ERROR_LOG
+              value: "/dev/stderr"
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001"
+            - name: KONG_PROXY_LISTEN
+              value: "0.0.0.0:8000"
+          ports:
+            - name: proxy
+              containerPort: 8000
+              protocol: TCP
+            - name: admin
+              containerPort: 8001
+              protocol: TCP
+          volumeMounts:
+            - name: kong-config
+              mountPath: /etc/kong
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8001
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      volumes:
+        - name: kong-config
+          configMap:
+            name: kong-declarative-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-proxy
+spec:
+  type: NodePort
+  selector:
+    app: kong-gateway
+  ports:
+    - name: proxy
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+      nodePort: 30800
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-admin
+spec:
+  type: ClusterIP
+  selector:
+    app: kong-gateway
+  ports:
+    - name: admin
+      protocol: TCP
+      port: 8001
+      targetPort: 8001
