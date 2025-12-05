@@ -26,3 +26,7 @@ kubectl port-forward service/prometheus-service 9090:9090
 kubectl port-forward service/grafana-service 3000:3000
 kubectl port-forward service/auth-service 8000:80
 kubectl port-forward service/users-service 8001:80
+
+kubectl port-forward svc/kong-proxy 8000:80
+
+Verificar perfis de acesso. User e admin

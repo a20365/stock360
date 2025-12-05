@@ -36,7 +36,6 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
             await upsert_user_profile(app, payload)
         except Exception as exc:
             logger.error("Failed to process user.created message: %s", exc, exc_info=True)
-            # Don't raise - acknowledge and continue to avoid crashing the consumer
 
 
 async def consume_user_created(app):
@@ -53,7 +52,6 @@ async def consume_user_created(app):
             async for message in queue_iter:
                 await _handle_message(app, message)
 
-        # Should not reach here under normal operation
         await connection.close()
     except Exception as exc:
         logger.error("Failed to start RabbitMQ consumer: %s", exc, exc_info=True)
