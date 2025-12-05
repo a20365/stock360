@@ -30,13 +30,13 @@ async def upsert_user_profile(app, payload: dict) -> None:
 
 
 async def _handle_message(app, message: aio_pika.IncomingMessage):
-    async with message.process(requeue=True):
+    async with message.process(requeue=False):
         try:
             payload = json.loads(message.body.decode("utf-8"))
             await upsert_user_profile(app, payload)
         except Exception as exc:
-            logger.error("Failed to process user.created message: %s", exc)
-            raise
+            logger.error("Failed to process user.created message: %s", exc, exc_info=True)
+            # Don't raise - acknowledge and continue to avoid crashing the consumer
 
 
 async def consume_user_created(app):
