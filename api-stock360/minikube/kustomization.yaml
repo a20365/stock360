@@ -19,8 +19,8 @@ resources:
   - hpa/hpa-requests-service.yaml
   - hpa/hpa-tools-service.yaml
   - hpa/hpa-users-service.yaml
-  - hpa/hpa-warehouses-service.yaml
   - kong/dep-kong-gateway.yaml
+  - rabbitmq/dep-rabbitmq.yaml
 
 configMapGenerator:
   - name: env-config
@@ -34,4 +34,8 @@ configMapGenerator:
 secretGenerator:
   - name: mongo-secret
     envs:
-      - mongo-creds.env
+      - mongodb/mongo-creds.env
+
+  - name: rabbitmq-credentials
+    envs:
+      - rabbitmq/rabbitmq-creds.env

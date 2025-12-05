@@ -69,7 +69,7 @@ spec:
     spec:
       containers:
         - name: kong
-          image: kong:3.4
+          image: kong:3.6
           env:
             - name: KONG_DATABASE
               value: "off"
@@ -87,6 +87,18 @@ spec:
               value: "0.0.0.0:8001"
             - name: KONG_PROXY_LISTEN
               value: "0.0.0.0:8000"
+            - name: KONG_PROXY_CONNECT_TIMEOUT
+              value: "60000"
+            - name: KONG_PROXY_SEND_TIMEOUT
+              value: "60000"
+            - name: KONG_PROXY_READ_TIMEOUT
+              value: "60000"
+            - name: KONG_NGINX_WORKER_PROCESSES
+              value: "1"
+            - name: KONG_LMDB_MAP_SIZE
+              value: "256m"
+            - name: KONG_WORKER_STATE_USE_LMDB
+              value: "off"
           ports:
             - name: proxy
               containerPort: 8000
@@ -119,7 +131,7 @@ spec:
               memory: "256Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
+              memory: "1Gi"
       volumes:
         - name: kong-config
           configMap:

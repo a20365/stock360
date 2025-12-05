@@ -27,8 +27,6 @@ spec:
           env:
             - name: DATABASE_URL
               value: "mongodb://$(AUTH_DB_USER):$(AUTH_DB_PASS)@auth-mongo:27017/$(AUTH_DB)?authSource=admin"
-            - name: RABBITMQ_URL
-              value: "amqp://guest:guest@rabbitmq:5672/"
           envFrom:
             - configMapRef:
                 name: env-config
