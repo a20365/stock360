@@ -40,20 +40,25 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
 
 
 async def consume_user_created(app):
-    connection = await aio_pika.connect_robust(RABBITMQ_URL)
-    channel = await connection.channel()
-    exchange = await channel.declare_exchange(EXCHANGE_NAME, ExchangeType.TOPIC, durable=True)
-    queue = await channel.declare_queue(QUEUE_NAME, durable=True)
-    await queue.bind(exchange, ROUTING_KEY_USER_CREATED)
+    try:
+        connection = await aio_pika.connect_robust(RABBITMQ_URL)
+        channel = await connection.channel()
+        exchange = await channel.declare_exchange(EXCHANGE_NAME, ExchangeType.TOPIC, durable=True)
+        queue = await channel.declare_queue(QUEUE_NAME, durable=True)
+        await queue.bind(exchange, ROUTING_KEY_USER_CREATED)
 
-    async with queue.iterator() as queue_iter:
-        async for message in queue_iter:
-            await _handle_message(app, message)
+        logger.info("RabbitMQ consumer started successfully, listening on queue: %s", QUEUE_NAME)
 
-    # Should not reach here under normal operation
-    await connection.close()
+        async with queue.iterator() as queue_iter:
+            async for message in queue_iter:
+                await _handle_message(app, message)
+
+        # Should not reach here under normal operation
+        await connection.close()
+    except Exception as exc:
+        logger.error("Failed to start RabbitMQ consumer: %s", exc, exc_info=True)
+        raise
 
 
 def start_consumer_background(app):
-    loop = asyncio.get_event_loop()
-    return loop.create_task(consume_user_created(app))
+    return asyncio.create_task(consume_user_created(app))

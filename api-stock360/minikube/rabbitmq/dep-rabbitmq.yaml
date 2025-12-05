@@ -39,17 +39,19 @@ spec:
               command:
                 - rabbitmq-diagnostics
                 - ping
-            initialDelaySeconds: 60
-            timeoutSeconds: 5
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
             periodSeconds: 10
+            failureThreshold: 5
           livenessProbe:
             exec:
               command:
                 - rabbitmq-diagnostics
                 - ping
             initialDelaySeconds: 60
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             periodSeconds: 10
+            failureThreshold: 5
           resources:
             requests:
               cpu: "100m"
