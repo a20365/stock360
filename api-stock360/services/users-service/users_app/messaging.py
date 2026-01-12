@@ -60,7 +60,7 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
         )
         await message.nack(requeue=False)
 
-    except Exception as exc:
+    except Exception:
         retries = get_retry_count(message)
 
         if retries >= MAX_RETRIES:
@@ -127,7 +127,7 @@ async def consume_user_created(app):
         await connection.close()
 
     except Exception as exc:
-        logger.error( "Failed to start RabbitMQ consumer: %s", exc, exc_info=True)
+        logger.error("Failed to start RabbitMQ consumer: %s", exc, exc_info=True)
         raise
 
 
