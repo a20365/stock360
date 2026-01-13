@@ -60,17 +60,19 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
         retries = get_retry_count(message)
 
         if retries >= MAX_RETRIES:
-            logger.error("Max retries (%s) reached for message %s. Sending to DLQ.", 
-                MAX_RETRIES, 
-                message.message_id, 
+            logger.error(
+                "Max retries (%s) reached for message %s. Sending to DLQ.",
+                MAX_RETRIES,
+                message.message_id,
                 exc_info=True,
             )
             await message.nack(requeue=False)
         else:
-            logger.warning("Error processing message %s. Retry %s/%s.", 
-                message.message_id, 
-                retries + 1, 
-                MAX_RETRIES, 
+            logger.warning(
+                "Error processing message %s. Retry %s/%s.",
+                message.message_id,
+                retries + 1,
+                MAX_RETRIES,
                 exc_info=True,
             )
             await message.nack(requeue=True)
