@@ -53,7 +53,11 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
         await message.ack()
 
     except json.JSONDecodeError as exc:
-        logger.error("Invalid JSON in user.created message: %s", exc, exc_info=True)
+        logger.error(
+            "Invalid JSON in user.created message: %s",
+            exc,
+            exc_info=True,
+        )
         await message.nack(requeue=False)
 
     except Exception:
@@ -77,10 +81,21 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
             )
             await message.nack(requeue=True)
 
+async def connect_with_retry():
+    while True:
+        try:
+            logger.info("Connecting to RabbitMQ...")
+            return await aio_pika.connect_robust(RABBITMQ_URL)
+        except Exception as exc:
+            logger.warning(
+                "RabbitMQ not ready (%s). Retrying in 5s...",
+                exc,
+            )
+            await asyncio.sleep(5)
 
 async def consume_user_created(app):
     try:
-        connection = await aio_pika.connect_robust(RABBITMQ_URL)
+        connection = await connect_with_retry()
         channel = await connection.channel()
 
         await channel.set_qos(prefetch_count=10)
