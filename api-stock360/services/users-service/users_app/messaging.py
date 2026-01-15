@@ -81,6 +81,7 @@ async def _handle_message(app, message: aio_pika.IncomingMessage):
             )
             await message.nack(requeue=True)
 
+
 async def connect_with_retry():
     while True:
         try:
@@ -92,6 +93,7 @@ async def connect_with_retry():
                 exc,
             )
             await asyncio.sleep(5)
+
 
 async def consume_user_created(app):
     try:
